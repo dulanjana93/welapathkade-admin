@@ -1,6 +1,12 @@
 'use client';
 
-import type { AstrologerApplicationStatus, AstrologerProfileStatus, ServiceStatus } from '@/lib/types/api';
+import type {
+  AstrologerApplicationStatus,
+  AstrologerProfileStatus,
+  ServiceStatus,
+  UserRole,
+  UserStatus,
+} from '@/lib/types/api';
 
 const APP_CLASS: Record<AstrologerApplicationStatus, string> = {
   DRAFT: 'badge-neutral',
@@ -34,4 +40,24 @@ export function ProfileStatusBadge({ status }: { status: AstrologerProfileStatus
 
 export function ServiceStatusBadge({ status }: { status: ServiceStatus }) {
   return <span className={`badge ${SERVICE_CLASS[status]}`}>{status}</span>;
+}
+
+const USER_STATUS_CLASS: Record<UserStatus, string> = {
+  ACTIVE: 'badge-success',
+  INACTIVE: 'badge-neutral',
+  SUSPENDED: 'badge-danger',
+};
+
+const USER_ROLE_CLASS: Record<UserRole, string> = {
+  PUBLIC: 'badge-neutral',
+  ASTROLOGER: 'badge-warn',
+  ADMIN: 'badge-success',
+};
+
+export function UserStatusBadge({ status }: { status: UserStatus }) {
+  return <span className={`badge ${USER_STATUS_CLASS[status]}`}>{status}</span>;
+}
+
+export function UserRoleBadge({ role }: { role: UserRole }) {
+  return <span className={`badge ${USER_ROLE_CLASS[role]}`}>{role}</span>;
 }

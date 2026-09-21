@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { authApi, astrologersApi, servicesApi } from '@/lib/api/admin';
+import { authApi, astrologersApi, servicesApi, usersApi } from '@/lib/api/admin';
 
 function mockJson(data: unknown, status = 200) {
   return {
@@ -154,6 +154,33 @@ describe('admin API wrappers', () => {
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/auth/logout',
       expect.objectContaining({ method: 'POST' }),
+    );
+  });
+
+  it('lists and updates users', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(mockJson([]))
+      .mockResolvedValueOnce(
+        mockJson({
+          id: 'u1',
+          name: 'Nimal',
+          role: 'PUBLIC',
+          status: 'SUSPENDED',
+        }),
+      );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await usersApi.list({ role: 'PUBLIC' });
+    await usersApi.updateStatus('u1', { status: 'SUSPENDED' });
+
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/admin/users?role=PUBLIC');
+    expect(fetchMock.mock.calls[1][0]).toBe('/api/admin/users/u1');
+    expect(fetchMock.mock.calls[1][1]).toEqual(
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'SUSPENDED' }),
+      }),
     );
   });
 });

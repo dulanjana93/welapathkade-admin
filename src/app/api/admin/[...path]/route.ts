@@ -7,7 +7,7 @@ type RouteContext = { params: Promise<{ path: string[] }> };
 async function handle(request: Request, context: RouteContext) {
   const { path } = await context.params;
   const segments = path ?? [];
-  const targetPath = `/${segments.join('/')}`;
+  const targetPath = `/admin/${segments.join('/')}`;
   const url = new URL(request.url);
   const query: Record<string, string> = {};
   url.searchParams.forEach((value, key) => {

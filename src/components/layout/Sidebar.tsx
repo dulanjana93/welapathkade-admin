@@ -14,7 +14,7 @@ const NAV: NavItem[] = [
   { href: '/dashboard', label: messages.nav.dashboard, enabled: true },
   { href: '/astrologers', label: messages.nav.astrologers, enabled: true },
   { href: '/services', label: messages.nav.services, enabled: true },
-  { href: '/users', label: messages.nav.users, enabled: false },
+  { href: '/users', label: messages.nav.users, enabled: true },
   { href: '/consultations', label: messages.nav.consultations, enabled: false },
   { href: '/payments', label: messages.nav.payments, enabled: false },
   { href: '/referrals', label: messages.nav.referrals, enabled: false },

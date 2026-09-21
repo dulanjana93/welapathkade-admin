@@ -1,8 +1,8 @@
 /** Types matching NestJS API responses (no invented fields). */
 
 export type UserRole = 'PUBLIC' | 'ASTROLOGER' | 'ADMIN';
-export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'DELETED';
-export type Language = 'SI' | 'EN' | 'TA';
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+export type Language = 'SI' | 'EN';
 
 export type AstrologerApplicationStatus =
   | 'DRAFT'
@@ -161,3 +161,33 @@ export type CreateServiceDto = {
 };
 
 export type UpdateServiceDto = Partial<CreateServiceDto>;
+
+export type AdminUserListItem = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  role: UserRole;
+  status: UserStatus;
+  language: Language;
+  referralCode: string;
+  referredByUserId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  astrologerProfileId: string | null;
+  profileStatus: AstrologerProfileStatus | null;
+  applicationStatus: AstrologerApplicationStatus | null;
+};
+
+export type AdminUserDetail = AdminUserListItem & {
+  referredBy: {
+    id: string;
+    name: string;
+    role: UserRole;
+    status: UserStatus;
+  } | null;
+};
+
+export type UpdateUserStatusDto = {
+  status: UserStatus;
+};

@@ -1,6 +1,11 @@
-import { PlaceholderPage } from '@/components/layout/PlaceholderPage';
+import { AdminShell } from '@/components/layout/AdminShell';
+import { UsersListView } from '@/features/users/UsersListView';
 import { messages } from '@/lib/i18n/en';
 
 export default function UsersPage() {
-  return <PlaceholderPage title={messages.nav.users} />;
+  return (
+    <AdminShell title={messages.users.title}>
+      <UsersListView />
+    </AdminShell>
+  );
 }

@@ -3,12 +3,17 @@ import type {
   AdminAstrologerDetail,
   AdminAstrologerListItem,
   AdminService,
+  AdminUserDetail,
+  AdminUserListItem,
   AstrologerApplicationStatus,
   AuthUser,
   CreateServiceDto,
   ReviewApplicationDto,
   ReviewApplicationResponse,
   UpdateServiceDto,
+  UpdateUserStatusDto,
+  UserRole,
+  UserStatus,
 } from '@/lib/types/api';
 
 export const authApi = {
@@ -61,6 +66,28 @@ export const servicesApi = {
 
   update(id: string, dto: UpdateServiceDto) {
     return apiClient<AdminService>(`/admin/services/${id}`, {
+      method: 'PATCH',
+      body: dto,
+    });
+  },
+};
+
+export const usersApi = {
+  list(filters?: { role?: UserRole; status?: UserStatus }) {
+    return apiClient<AdminUserListItem[]>('/admin/users', {
+      query: {
+        role: filters?.role,
+        status: filters?.status,
+      },
+    });
+  },
+
+  get(id: string) {
+    return apiClient<AdminUserDetail>(`/admin/users/${id}`);
+  },
+
+  updateStatus(id: string, dto: UpdateUserStatusDto) {
+    return apiClient<AdminUserListItem>(`/admin/users/${id}`, {
       method: 'PATCH',
       body: dto,
     });
