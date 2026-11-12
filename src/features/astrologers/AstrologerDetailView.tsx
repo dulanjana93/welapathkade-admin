@@ -167,6 +167,12 @@ export function AstrologerDetailView({ id }: { id: string }) {
             <dd>{detail.user.status}</dd>
           </div>
         </dl>
+        <p className="muted" style={{ marginTop: '0.75rem' }}>
+          {messages.astrologers.bankAccountsHint}{' '}
+          <Link className="link-btn" href={`/users/${detail.user.id}`}>
+            {messages.astrologers.openUserAccount}
+          </Link>
+        </p>
       </section>
 
       <section className="panel">

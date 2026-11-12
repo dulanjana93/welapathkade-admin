@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { authApi, astrologersApi, servicesApi, usersApi } from '@/lib/api/admin';
+import {
+  authApi,
+  astrologersApi,
+  consultationsApi,
+  financeApi,
+  servicesApi,
+  usersApi,
+} from '@/lib/api/admin';
 
 function mockJson(data: unknown, status = 200) {
   return {
@@ -157,6 +164,39 @@ describe('admin API wrappers', () => {
     );
   });
 
+  it('loads finance overview, ledger, reconcile, and attention cases', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        mockJson({
+          dateRange: { from: null, to: null, interval: 'UTC_HALF_OPEN' },
+          postedGrossAmount: '0.00',
+        }),
+      )
+      .mockResolvedValueOnce(mockJson({ page: 1, pageSize: 20, total: 0, items: [] }))
+      .mockResolvedValueOnce(
+        mockJson({ complete: true, issueCount: 0, issues: [] }),
+      )
+      .mockResolvedValueOnce(mockJson({ page: 1, pageSize: 20, total: 0, items: [] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await financeApi.overview({ from: '2026-01-01T00:00:00.000Z' });
+    await financeApi.ledger({ appointmentId: 'apt-1', page: 2, pageSize: 10 });
+    await financeApi.reconcile();
+    await financeApi.attentionCases({ page: 1 });
+
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      '/api/admin/finance/overview?from=2026-01-01T00%3A00%3A00.000Z',
+    );
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      '/api/admin/finance/ledger?appointmentId=apt-1&page=2&pageSize=10',
+    );
+    expect(fetchMock.mock.calls[2][0]).toBe('/api/admin/finance/reconcile');
+    expect(fetchMock.mock.calls[3][0]).toBe(
+      '/api/admin/finance/attention-cases?page=1',
+    );
+  });
+
   it('lists and updates users', async () => {
     const fetchMock = vi
       .fn()
@@ -181,6 +221,59 @@ describe('admin API wrappers', () => {
         method: 'PATCH',
         body: JSON.stringify({ status: 'SUSPENDED' }),
       }),
+    );
+  });
+
+  it('posts an admin withdrawal cancellation with the reason', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(mockJson({ id: 'w1', status: 'CANCELLED' }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await financeApi.cancelWithdrawal('w1', {
+      reason: 'Wallet shortfall after reversal',
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/finance/withdrawals/w1/cancel',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ reason: 'Wallet shortfall after reversal' }),
+      }),
+    );
+  });
+
+  it('lists consultations with filters and boolean query params', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      mockJson({ page: 1, pageSize: 20, total: 0, notes: {}, items: [] }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await consultationsApi.list({
+      page: 1,
+      pageSize: 20,
+      status: 'PENDING',
+      q: 'Amal',
+      hasRefundObligation: true,
+      manualReviewRequired: false,
+      appointmentStatus: 'PAYMENT_PENDING',
+      paymentStatus: 'PENDING',
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/consultations?page=1&pageSize=20&status=PENDING&q=Amal&hasRefundObligation=true&manualReviewRequired=false&appointmentStatus=PAYMENT_PENDING&paymentStatus=PENDING',
+      expect.any(Object),
+    );
+  });
+
+  it('loads consultation detail with encoded id', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(mockJson({ consultation: { id: 'c/1' } }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await consultationsApi.get('c/1');
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/consultations/c%2F1',
+      expect.any(Object),
     );
   });
 });

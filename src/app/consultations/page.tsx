@@ -1,6 +1,11 @@
-import { PlaceholderPage } from '@/components/layout/PlaceholderPage';
+import { AdminShell } from '@/components/layout/AdminShell';
+import { ConsultationsListView } from '@/features/consultations/ConsultationsListView';
 import { messages } from '@/lib/i18n/en';
 
 export default function ConsultationsPage() {
-  return <PlaceholderPage title={messages.nav.consultations} />;
+  return (
+    <AdminShell title={messages.consultations.title}>
+      <ConsultationsListView />
+    </AdminShell>
+  );
 }

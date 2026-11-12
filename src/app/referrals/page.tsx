@@ -1,6 +1,11 @@
-import { PlaceholderPage } from '@/components/layout/PlaceholderPage';
+import { AdminShell } from '@/components/layout/AdminShell';
+import { ReferralsView } from '@/features/referrals/ReferralsView';
 import { messages } from '@/lib/i18n/en';
 
 export default function ReferralsPage() {
-  return <PlaceholderPage title={messages.nav.referrals} />;
+  return (
+    <AdminShell title={messages.referrals.title}>
+      <ReferralsView />
+    </AdminShell>
+  );
 }

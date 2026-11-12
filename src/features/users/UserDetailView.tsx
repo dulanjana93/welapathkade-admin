@@ -12,6 +12,7 @@ import {
   UserRoleBadge,
   UserStatusBadge,
 } from '@/components/ui/StatusBadge';
+import { CorrectReferralDialog } from '@/features/referrals/CorrectReferralDialog';
 import { usersApi } from '@/lib/api/admin';
 import { ApiError } from '@/lib/api/errors';
 import { formatDateTime } from '@/lib/format';
@@ -26,6 +27,7 @@ export function UserDetailView({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [statusOpen, setStatusOpen] = useState(false);
+  const [referralCorrectOpen, setReferralCorrectOpen] = useState(false);
   const [nextStatus, setNextStatus] = useState<UserStatus>('ACTIVE');
   const [submitting, setSubmitting] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
@@ -167,6 +169,21 @@ export function UserDetailView({ id }: { id: string }) {
             </dd>
           </div>
         </dl>
+        {detail.role === 'PUBLIC' || detail.role === 'ASTROLOGER' ? (
+          <p style={{ marginTop: '0.75rem' }}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setMutationError(null);
+                setSuccess(null);
+                setReferralCorrectOpen(true);
+              }}
+              disabled={submitting}
+            >
+              {messages.users.correctReferral}
+            </Button>
+          </p>
+        ) : null}
       </section>
 
       {detail.role === 'ASTROLOGER' ? (
@@ -207,6 +224,61 @@ export function UserDetailView({ id }: { id: string }) {
         </section>
       ) : null}
 
+      <section className="panel">
+        <h2>{messages.users.sectionBankAccounts}</h2>
+        <p className="muted" style={{ marginBottom: '0.75rem' }}>
+          {detail.bankAccountsNote || messages.users.bankAccountsMaskedNote}
+        </p>
+        {(detail.bankAccounts ?? []).length === 0 ? (
+          <p className="muted">{messages.users.bankAccountsEmpty}</p>
+        ) : (
+          <div className="stack gap">
+            {(detail.bankAccounts ?? []).map((account) => (
+              <dl key={account.id} className="detail-grid">
+                <div>
+                  <dt>{messages.users.bankName}</dt>
+                  <dd>{account.bankName}</dd>
+                </div>
+                <div>
+                  <dt>{messages.users.accountHolder}</dt>
+                  <dd>{account.accountHolderName}</dd>
+                </div>
+                <div>
+                  <dt>{messages.users.branchName}</dt>
+                  <dd>{account.branchName}</dd>
+                </div>
+                <div>
+                  <dt>{messages.users.accountNumber}</dt>
+                  <dd>
+                    <code>{account.accountNumberMasked}</code>
+                  </dd>
+                </div>
+                <div>
+                  <dt>{messages.users.bankCode}</dt>
+                  <dd>{account.bankCode || '—'}</dd>
+                </div>
+                <div>
+                  <dt>{messages.users.branchCode}</dt>
+                  <dd>{account.branchCode || '—'}</dd>
+                </div>
+                <div>
+                  <dt>{messages.users.status}</dt>
+                  <dd>
+                    {account.isActive
+                      ? messages.users.bankAccountActive
+                      : messages.users.bankAccountInactive}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{messages.users.updatedAt}</dt>
+                  <dd>{formatDateTime(account.updatedAt)}</dd>
+                </div>
+              </dl>
+            ))}
+          </div>
+        )}
+      </section>
+
       <Dialog
         open={statusOpen}
         title={messages.users.statusTitle}
@@ -246,6 +318,19 @@ export function UserDetailView({ id }: { id: string }) {
           </select>
         </label>
       </Dialog>
+
+      <CorrectReferralDialog
+        open={referralCorrectOpen}
+        targetUserId={detail.id}
+        targetUserName={detail.name}
+        currentReferrer={detail.referredBy}
+        onClose={() => setReferralCorrectOpen(false)}
+        onSuccess={async () => {
+          setSuccess(messages.users.correctReferralSuccess);
+          setReferralCorrectOpen(false);
+          await load();
+        }}
+      />
     </div>
   );
 }

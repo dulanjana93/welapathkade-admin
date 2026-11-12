@@ -1,6 +1,5 @@
-import { PlaceholderPage } from '@/components/layout/PlaceholderPage';
-import { messages } from '@/lib/i18n/en';
+import { redirect } from 'next/navigation';
 
 export default function PaymentsPage() {
-  return <PlaceholderPage title={messages.nav.payments} />;
+  redirect('/finance/overview');
 }

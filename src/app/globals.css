@@ -433,6 +433,16 @@ code {
   border-bottom: none;
 }
 
+.ref-list {
+  margin: 0;
+  padding-left: 1rem;
+  list-style: disc;
+}
+
+.pagination-bar {
+  align-items: center;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
